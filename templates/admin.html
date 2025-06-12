@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin - Team Management</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-image: url('../static/img/colorful.avif');
+      background-size: cover;
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+      background-position: center;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+    }
+
+    .navbar {
+      background: #111;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+      position: sticky;
+      top: 0;
+      z-index: 999;
+    }
+
+    .logo {
+      font-size: 28px;
+      font-weight: bold;
+      color: #fbc300;
+    }
+
+    .nav-links {
+      list-style: none;
+      display: flex;
+      gap: 25px;
+    }
+
+    .nav-links li a {
+      text-decoration: none;
+      color: #f0f0f0;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+
+    .nav-links li a:hover {
+      color: #fbc300;
+    }
+
+    h1, h2 {
+      color: #fbc300;
+      margin-top: 30px;
+      text-align: center;
+    }
+
+    .table {
+      background-color: rgba(0, 0, 0, 0.6);
+      color: white;
+    }
+
+    .form-control {
+      background-color: #f8f9fa;
+    }
+
+    .btn-edit, .btn-delete {
+      border: none;
+      padding: 6px 12px;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+
+    .btn-edit {
+      background-color: #ffc107;
+      color: black;
+    }
+
+    .btn-delete {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    .btn-primary {
+      background-color: green;
+      border: none;
+    }
+
+    footer {
+      margin-top: 40px;
+      padding: 20px;
+      background-color: rgba(0, 0, 0, 0.8);
+      color: #ccc;
+      text-align: center;
+    }
+
+    @media screen and (max-width: 768px) {
+      .container {
+        width: 95%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo">⚽ GamePlay</div>
+    <ul class="nav-links">
+      <li><a href="/home1">Home</a></li>
+      <li><a href="/teams">Teams</a></li>
+      <li><a href="/about">About Us</a></li>
+      <li><a href="/register">Registration</a></li>
+      <li><a href="/login">Admin</a></li>
+      <li><a href="/contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <div class="container mt-4">
+    <h1>Admin Page - Team Management</h1>
+
+    <div id="teams-container">
+      <!-- Template Section -->
+      <script>
+        const teams = [
+          { id: 'football', name: 'Football', members: [{ name: 'John Doe', role: 'Coach' }] },
+          { id: 'basketball', name: 'Basketball', members: [{ name: 'Jane Smith', role: 'Player' }] },
+          { id: 'volleyball', name: 'Volleyball', members: [{ name: 'Emily Clark', role: 'Player' }] }
+        ];
+      </script>
+
+      <div id="teamSections"></div>
+    </div>
+  </div>
+
+  <footer>
+    <p>© 2025 GamePlay. All Rights Reserved.</p>
+  </footer>
+
+  <script>
+    const container = document.getElementById('teamSections');
+
+    teams.forEach(team => {
+      const section = document.createElement('div');
+      section.innerHTML = `
+        <h2>${team.name} Team</h2>
+        <table class="table table-striped" id="${team.id}-table">
+          <thead><tr><th>Name</th><th>Role</th><th>Actions</th></tr></thead>
+          <tbody>
+            ${team.members.map(m => `<tr><td>${m.name}</td><td>${m.role}</td><td><button class='btn-edit'>Edit</button> <button class='btn-delete'>Delete</button></td></tr>`).join('')}
+          </tbody>
+        </table>
+        <form class="row g-2 mt-2" onsubmit="addRow(event, '${team.id}-table', this)">
+          <div class="col-md-4"><input type="text" class="form-control" placeholder="Name" required></div>
+          <div class="col-md-4"><input type="text" class="form-control" placeholder="Role" required></div>
+          <div class="col-md-4"><button type="submit" class="btn btn-primary">Add</button></div>
+        </form>
+      `;
+      container.appendChild(section);
+    });
+
+    function addRow(event, tableId, form) {
+      event.preventDefault();
+      const nameInput = form.querySelector('input[placeholder="Name"]');
+      const roleInput = form.querySelector('input[placeholder="Role"]');
+      const tableBody = document.querySelector(`#${tableId} tbody`);
+      const newRow = document.createElement('tr');
+      newRow.innerHTML = `
+        <td>${nameInput.value}</td>
+        <td>${roleInput.value}</td>
+        <td>
+          <button class="btn-edit">Edit</button>
+          <button class="btn-delete">Delete</button>
+        </td>
+      `;
+      tableBody.appendChild(newRow);
+      nameInput.value = '';
+      roleInput.value = '';
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.target.classList.contains('btn-delete')) {
+        e.target.closest('tr').remove();
+      }
+
+      if (e.target.classList.contains('btn-edit') || e.target.classList.contains('btn-save')) {
+        const row = e.target.closest('tr');
+        const nameCell = row.children[0];
+        const roleCell = row.children[1];
+        const button = e.target;
+
+        if (button.classList.contains('btn-edit')) {
+          nameCell.innerHTML = `<input type="text" class="form-control form-control-sm" value="${nameCell.textContent}">`;
+          roleCell.innerHTML = `<input type="text" class="form-control form-control-sm" value="${roleCell.textContent}">`;
+          button.textContent = 'Save';
+          button.classList.remove('btn-edit');
+          button.classList.add('btn-save');
+        } else {
+          const nameInput = nameCell.querySelector('input');
+          const roleInput = roleCell.querySelector('input');
+          nameCell.textContent = nameInput.value;
+          roleCell.textContent = roleInput.value;
+          button.textContent = 'Edit';
+          button.classList.remove('btn-save');
+          button.classList.add('btn-edit');
+        }
+      }
+    });
+  </script>
+</body>
+</html>
